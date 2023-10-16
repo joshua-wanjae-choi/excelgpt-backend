@@ -1,0 +1,6 @@
+pip install pandas
+pip install -q google-generativeai
+pip install celery
+
+pip install fastapi
+pip install "uvicorn[standard]"
