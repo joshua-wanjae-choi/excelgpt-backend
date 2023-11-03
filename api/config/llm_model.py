@@ -3,11 +3,11 @@ import google.generativeai as palm
 
 
 class LLMModel:
-    Model = None
+    model = None
 
     @staticmethod
     def init(model_name: str = "palm"):
-        LLMModel.Model = LLMModel.get_palm_model()
+        LLMModel.model = LLMModel.get_palm_model()
 
     @staticmethod
     def get_palm_model():
