@@ -12,6 +12,17 @@ ENV PATH="/home/excelgpt/.local/bin:$PATH"
 
 USER root
 
+# Install mariadb client
+RUN apt install wget apt-transport-https -y
+RUN wget https://r.mariadb.com/downloads/mariadb_repo_setup
+RUN echo "935944a2ab2b2a48a47f68711b43ad2d698c97f1c3a7d074b34058060c2ad21b  mariadb_repo_setup" \
+       | sha256sum -c -
+RUN chmod +x mariadb_repo_setup
+RUN ./mariadb_repo_setup
+
+RUN apt install mariadb-client -y
+
+
 # Install dependencies
 RUN apt-get update
 RUN apt-get install libffi-dev -y
@@ -37,6 +48,7 @@ RUN python -m pip install .
 RUN cp /usr/local/lib/mariadb/libmariadb.so.3 /usr/local/lib/
 
 RUN chown -R excelgpt:excelgpt /home/excelgpt
+
 
 # Select User
 USER excelgpt
