@@ -4,3 +4,4 @@ pip install celery
 
 pip install fastapi
 pip install "uvicorn[standard]"
+pip install sqlalchemy

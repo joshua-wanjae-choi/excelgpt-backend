@@ -11,7 +11,7 @@ class LLMModel:
 
     @staticmethod
     def get_palm_model():
-        palm.configure(api_key=Secret.API_KEY)
+        palm.configure(api_key=Secret.api_key)
 
         models = [
             m

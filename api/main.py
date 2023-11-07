@@ -4,6 +4,7 @@ from config.llm_model import LLMModel
 from controller.query import router as query_router
 from pydantic import BaseModel
 from typing import Dict
+from util.db import DB
 import google.generativeai as palm
 import os
 import sys
@@ -18,6 +19,9 @@ app = FastAPI()
 
 # LLM Model 초기화
 LLMModel.init()
+
+# DB 초기화
+DB.init_database()
 
 origins = ["http://localhost:3000"]
 app.add_middleware(
@@ -147,10 +151,8 @@ using python, pandas and do not print results.
                 rows = []
                 with open(result_path) as f:
                     rows = f.read().splitlines()
-
+                    
                 return {"data": rows}
-                raise HTTPException(status_code=500, detail="failed to run query")
-
         except:
             raise HTTPException(status_code=500, detail="failed to run query")
 
