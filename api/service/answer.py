@@ -1,57 +1,76 @@
 from config.llm_model import LLMModel
-import google.generativeai as palm
+from model.query_snippet import QuerySnippet
 import re
+import os
+import google.generativeai as palm
 
 
-def get_answer(query: str):
-    prompt = f"""
-    dataframe name is AAA.
-    file name is AAA.csv.
-    AAA CSV data = `
-    col1, col2, col3
-    김, 2, 3
-    이, 5, 6
-    박, 8, 9
-    `.
-    first line of AAA.csv is header.
-    
-    dataframe name is BBB.
-    file name is BBB.csv.
-    BBB CSV data = `
-    col4
-    김
-    `.
-    first line of BBB.csv is header.
-    
-    result dataframe is named update.
-    result file name is update.csv.
-    
-    request below.
-    {query}
-    Extract only existing columns of BBB.csv.
-    
-    
-    constraints below.
-    using python, pandas and do not print results.
-    if you would use pd.merge, you must use left_on, right_on.
-    """
+def get_full_query(
+    userspace_path: str,
+    result_file_name: str,
+    num_ref_lines: int,
+    query: str,
+):
+    result_path = f"{userspace_path}/{result_file_name}"
 
+    file_names = os.listdir(userspace_path)
+    file_names = [
+        file_name for file_name in file_names if file_name != result_file_name
+    ]
+    if len(file_names) < 0:
+        return False, 404, "files not found"
+
+    table_query_snippet = QuerySnippet.retrieve_table_query_snippet()
+    if table_query_snippet is None:
+        return False, 500, "failed to run query"
+
+    constraint_query_snippet = QuerySnippet.retrieve_constraint_query_snippet()
+    if constraint_query_snippet is None:
+        return False, 500, "failed to run query"
+
+    full_query = ""
+    for file_name in file_names:
+        lines = ""
+        path = f"{userspace_path}/{file_name}"
+        with open(path) as f:
+            for _ in range(num_ref_lines):
+                lines += f.readline()
+            f.close()
+
+        chunk = table_query_snippet.snippet
+        chunk = (
+            chunk.replace("%file_name%", file_name)
+            .replace("%path%", path)
+            .replace("%lines%", lines)
+        )
+        full_query += chunk
+
+    chunk = constraint_query_snippet.snippet
+    chunk = (
+        chunk.replace("%result_file_name%", result_file_name)
+        .replace("%result_path%", result_path)
+        .replace("%query%", query)
+    )
+    full_query += chunk
+
+    return True, 0, full_query
+
+
+def get_answer(full_query: str):
     completion = palm.generate_text(
-        model=LLMModel.Model,
-        prompt=prompt,
+        model=LLMModel.model,
+        prompt=full_query,
         temperature=0,
         max_output_tokens=800,
     )
-    answer = _extract_source(completion.result)
-
-    return answer
+    return extract_source(completion.result)
 
 
-def _extract_source(raw: str):
+def extract_source(raw: str):
     pattern = re.compile("```python(.*)```", re.DOTALL)
     found = pattern.findall(raw)
 
     if len(found) > 0:
-        return found[0]
+        return True, found[0]
 
-    return ""
+    return False, ""
