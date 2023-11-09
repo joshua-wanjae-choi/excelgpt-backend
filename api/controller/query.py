@@ -4,6 +4,8 @@ from typing import Dict, Union
 from model.query_count_by_ip import QueryCountByIp
 from service.answer import get_full_query, get_answer
 from datetime import datetime
+from config.config import Config
+import pathlib
 
 
 router = APIRouter(prefix="/query")
@@ -18,9 +20,9 @@ async def request_query(
     input_query: InputQuery,
     x_forwarded_for: Union[str, None] = Header(default=None),
 ):
-    home_dir_path = "/home/excelgpt/app"
-    disk_dir_path = f"{home_dir_path}/disk"
-    userspace_name = "my_user"
+    home_dir_path = str(pathlib.Path(__file__).parent.parent.parent.resolve())
+    disk_dir_path = f"{home_dir_path}/{Config.disk_dir_name}"
+    userspace_name = x_forwarded_for
     userspace_path = f"{disk_dir_path}/{userspace_name}"
     result_file_name = "result"
     result_path = f"{userspace_path}/{result_file_name}"
@@ -66,7 +68,7 @@ def _update_query_count(ip: str):
     today_date = datetime.utcnow().strftime("%Y-%m-%d")
     query_count_result = QueryCountByIp.retrieve_query_count(ip, today_date)
     if query_count_result is None:
-        QueryCountByIp.init_query_count(ip, today_date)
+        QueryCountByIp.init_query_count(ip)
 
     else:
         QueryCountByIp.update_query_count(

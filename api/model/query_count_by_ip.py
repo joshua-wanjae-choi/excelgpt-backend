@@ -35,10 +35,8 @@ class QueryCountByIp(Base):
         )
         return DB.conn.execute(stmt).first()
 
-    def init_query_count(ip: str, today_date: str):
-        stmt = insert(QueryCountByIp).values(
-            ip=ip, query_count=1
-        )
+    def init_query_count(ip: str):
+        stmt = insert(QueryCountByIp).values(ip=ip, query_count=1)
         DB.conn.execute(stmt)
         DB.conn.commit()
 
@@ -53,3 +51,11 @@ class QueryCountByIp(Base):
         )
         DB.conn.execute(stmt)
         DB.conn.commit()
+
+    def list_expired_ip(days_expired: int):
+        stmt = (
+            select(QueryCountByIp.ip)
+            .distinct()
+            .where(func.hour(func.timediff(func.now(), QueryCountByIp.updated_at)) > 7)
+        )
+        return DB.conn.execute(stmt).all()

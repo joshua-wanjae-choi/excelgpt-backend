@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Union
+from config.config import Config
+import pathlib
 import os
 
 
@@ -12,10 +14,13 @@ class InputFile(BaseModel):
 
 
 @router.post("")
-def async_file(input_file: InputFile):
-    home_dir_path = "/home/excelgpt/app"
-    disk_dir_path = f"{home_dir_path}/disk"
-    userspace_name = "my_user"
+def async_file(
+    input_file: InputFile,
+    x_forwarded_for: Union[str, None] = Header(default=None),
+):
+    home_dir_path = str(pathlib.Path(__file__).parent.parent.parent.resolve())
+    disk_dir_path = f"{home_dir_path}/{Config.disk_dir_name}"
+    userspace_name = x_forwarded_for
     userspace_path = f"{disk_dir_path}/{userspace_name}"
 
     os.makedirs(userspace_path, exist_ok=True)
