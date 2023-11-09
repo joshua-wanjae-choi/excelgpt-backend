@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Union
+from model.query_count_by_ip import QueryCountByIp
 from service.answer import get_full_query, get_answer
+from datetime import datetime
 
 
 router = APIRouter(prefix="/query")
@@ -12,7 +14,10 @@ class InputQuery(BaseModel):
 
 
 @router.post("")
-async def request_query(input_query: InputQuery):
+async def request_query(
+    input_query: InputQuery,
+    x_forwarded_for: Union[str, None] = Header(default=None),
+):
     home_dir_path = "/home/excelgpt/app"
     disk_dir_path = f"{home_dir_path}/disk"
     userspace_name = "my_user"
@@ -48,6 +53,22 @@ async def request_query(input_query: InputQuery):
             with open(result_path) as f:
                 rows = f.read().splitlines()
 
+            # 쿼리 카운트 갱신
+            ip = x_forwarded_for
+            _update_query_count(ip)
+
             return {"data": rows}
     except:
         raise HTTPException(status_code=500, detail="failed to run query")
+
+
+def _update_query_count(ip: str):
+    today_date = datetime.utcnow().strftime("%Y-%m-%d")
+    query_count_result = QueryCountByIp.retrieve_query_count(ip, today_date)
+    if query_count_result is None:
+        QueryCountByIp.init_query_count(ip, today_date)
+
+    else:
+        QueryCountByIp.update_query_count(
+            ip, today_date, query_count_result.query_count + 1
+        )

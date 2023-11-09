@@ -13,7 +13,6 @@ class InputFile(BaseModel):
 
 @router.post("")
 def async_file(input_file: InputFile):
-    print(f"hello world")
     home_dir_path = "/home/excelgpt/app"
     disk_dir_path = f"{home_dir_path}/disk"
     userspace_name = "my_user"

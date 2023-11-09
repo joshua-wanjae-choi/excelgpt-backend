@@ -1,11 +1,10 @@
 FROM python:3.12.0
 
-WORKDIR /home/excelgpt/app
-
 # Create User
 RUN useradd -m -u 1001 excelgpt
 USER excelgpt
 
+WORKDIR /home/excelgpt/app
 COPY . .
 
 ENV PATH="/home/excelgpt/.local/bin:$PATH"

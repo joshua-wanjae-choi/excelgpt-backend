@@ -63,6 +63,7 @@ def get_answer(full_query: str):
         temperature=0,
         max_output_tokens=800,
     )
+    
     return extract_source(completion.result)
 
 

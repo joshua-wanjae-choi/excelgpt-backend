@@ -1,13 +1,22 @@
+from util.secret_util import SecretUtil
+import pathlib
+
+# secret 파일 로드
+api_path = str(pathlib.Path(__file__).parent.resolve())
+secret_path = f"{api_path}/secret.py"
+docker_secret_name = "api-secret"
+SecretUtil.load_secret(secret_path=secret_path, docker_secret_name=docker_secret_name)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from controller.query import router as query_router
 from controller.file import router as file_router
 from config.llm_model import LLMModel
+from middleware.limit_query_count_ip import LimitQueryCountByIP
 from util.db import DB
 import sys
 
 # api 경로 sys.path에 추가
-api_path = "/home/excelgpt/app/api"
 sys.path.append(api_path)
 
 # fastAPI app 로드
@@ -27,6 +36,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(LimitQueryCountByIP)
 
 
 @app.get("/health-check")
