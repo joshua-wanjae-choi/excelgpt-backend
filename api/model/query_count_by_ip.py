@@ -56,6 +56,9 @@ class QueryCountByIp(Base):
         stmt = (
             select(QueryCountByIp.ip)
             .distinct()
-            .where(func.hour(func.timediff(func.now(), QueryCountByIp.updated_at)) > 7)
+            .where(
+                func.hour(func.timediff(func.now(), QueryCountByIp.updated_at))
+                > days_expired * 24
+            )
         )
         return DB.conn.execute(stmt).all()
