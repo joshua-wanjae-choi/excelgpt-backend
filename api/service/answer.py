@@ -10,6 +10,7 @@ def get_full_query(
     result_file_name: str,
     num_ref_lines: int,
     query: str,
+    base_sheet_name: str,
 ):
     result_path = f"{userspace_path}/{result_file_name}"
 
@@ -50,6 +51,7 @@ def get_full_query(
         chunk.replace("%result_file_name%", result_file_name)
         .replace("%result_path%", result_path)
         .replace("%query%", query)
+        .replace("%base_sheet_name%", base_sheet_name)
     )
     full_query += chunk
 

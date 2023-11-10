@@ -18,17 +18,19 @@ def async_file(
     input_file: InputFile,
     x_forwarded_for: Union[str, None] = Header(default=None),
 ):
-    home_dir_path = str(pathlib.Path(__file__).parent.parent.parent.resolve())
-    disk_dir_path = f"{home_dir_path}/{Config.disk_dir_name}"
-    userspace_name = x_forwarded_for
-    userspace_path = f"{disk_dir_path}/{userspace_name}"
+    try:
+        home_dir_path = str(pathlib.Path(__file__).parent.parent.parent.resolve())
+        disk_dir_path = f"{home_dir_path}/{Config.disk_dir_name}"
+        userspace_name = x_forwarded_for
+        userspace_path = f"{disk_dir_path}/{userspace_name}"
+        os.makedirs(userspace_path, exist_ok=True)
 
-    os.makedirs(userspace_path, exist_ok=True)
+        for file_name in input_file.data:
+            file_path = f"{userspace_path}/{file_name}"
+            contents = input_file.data[file_name]
+            with open(file_path, "w") as f:
+                f.write(contents)
 
-    for file_name in input_file.data:
-        file_path = f"{userspace_path}/{file_name}"
-        contents = input_file.data[file_name]
-        with open(file_path, "w") as f:
-            f.write(contents)
-
-    return {"data": "success"}
+        return {"data": "success"}
+    except Exception as e:
+        print(f"${e=}")

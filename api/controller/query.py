@@ -11,8 +11,13 @@ import pathlib
 router = APIRouter(prefix="/query")
 
 
+class InputRow(BaseModel):
+    query: str
+    base_sheet_name: str
+
+
 class InputQuery(BaseModel):
-    data: Dict[str, str] = ""
+    data: InputRow
 
 
 @router.post("")
@@ -28,26 +33,27 @@ async def request_query(
     result_path = f"{userspace_path}/{result_file_name}"
     num_ref_lines = 5
 
-    if "query" not in input_query.data:
-        raise HTTPException(status_code=422, detail="query not found")
-
     is_ok, error_code, result = get_full_query(
         userspace_path=userspace_path,
         result_file_name=result_file_name,
         num_ref_lines=num_ref_lines,
-        query=input_query.data["query"],
+        query=input_query.data.query,
+        base_sheet_name=input_query.data.base_sheet_name,
     )
 
     if not is_ok:
         raise HTTPException(status_code=error_code, detail=result)
 
     full_query = result
-    is_ok, result = get_answer(full_query=full_query)
-    if not is_ok:
-        raise HTTPException(status_code=500, detail="failed to run query")
+    print(f"${full_query=}")
 
     try:
+        is_ok, result = get_answer(full_query=full_query)
+        if not is_ok:
+            raise HTTPException(status_code=500, detail="failed to run query")
+
         source = result
+        print(f"${source=}")
         if is_ok:
             exec(source)
 
@@ -60,7 +66,8 @@ async def request_query(
             _update_query_count(ip)
 
             return {"data": rows}
-    except:
+    except Exception as e:
+        print(f"${e=}")
         raise HTTPException(status_code=500, detail="failed to run query")
 
 
