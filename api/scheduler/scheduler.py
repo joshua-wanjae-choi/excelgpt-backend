@@ -1,14 +1,10 @@
 from model.query_count_by_ip import QueryCountByIp
 from config.config import Config
-from rocketry import Rocketry
 import pathlib
 import os
 import shutil
 
-app_rocketry = Rocketry(execution="async")
 
-
-@app_rocketry.task("every 1 day")
 async def clean_expired_files():
     print("run")
     api_path = str(pathlib.Path(__file__).parent.parent.parent.resolve())

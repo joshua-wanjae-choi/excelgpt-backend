@@ -5,6 +5,7 @@ from model.query_count_by_ip import QueryCountByIp
 from service.answer import get_full_query, get_answer
 from datetime import datetime
 from config.config import Config
+from config.response import Response
 import pathlib
 
 
@@ -33,7 +34,7 @@ async def request_query(
     result_path = f"{userspace_path}/{result_file_name}"
     num_ref_lines = 5
 
-    is_ok, error_code, result = get_full_query(
+    is_ok, status_code, result = get_full_query(
         userspace_path=userspace_path,
         result_file_name=result_file_name,
         num_ref_lines=num_ref_lines,
@@ -42,16 +43,18 @@ async def request_query(
     )
 
     if not is_ok:
-        raise HTTPException(status_code=error_code, detail=result)
+        content = Response.get_response(result)
+        raise HTTPException(status_code=status_code, detail=content)
 
     full_query = result
     print(f"${full_query=}")
 
+    is_ok, result = get_answer(full_query=full_query)
+    if not is_ok:
+        content = Response.get_response("7100")
+        raise HTTPException(status_code=500, detail=content)
+        
     try:
-        is_ok, result = get_answer(full_query=full_query)
-        if not is_ok:
-            raise HTTPException(status_code=500, detail="failed to run query")
-
         source = result
         print(f"${source=}")
         if is_ok:
@@ -68,7 +71,8 @@ async def request_query(
             return {"data": rows}
     except Exception as e:
         print(f"${e=}")
-        raise HTTPException(status_code=500, detail="failed to run query")
+        content = Response.get_response("7101")
+        raise HTTPException(status_code=500, detail=content)
 
 
 def _update_query_count(ip: str):

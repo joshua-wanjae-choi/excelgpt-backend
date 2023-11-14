@@ -4,6 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from model.query_count_by_ip import QueryCountByIp
 from config.config import Config
 from datetime import datetime
+from config.response import Response
 
 
 class LimitQueryCountByIP(BaseHTTPMiddleware):
@@ -22,7 +23,8 @@ class LimitQueryCountByIP(BaseHTTPMiddleware):
             query_count_result is not None
             and query_count_result.query_count > Config.limit_query_count
         ):
-            return JSONResponse(status_code=500, content="failed to run query")
+            content = Response.get_response("3000")
+            return JSONResponse(status_code=500, content=content)
 
         response = await call_next(request)
         return response

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Header
 from pydantic import BaseModel
 from typing import Dict, Union
 from config.config import Config
+from config.response import Response
 import pathlib
 import os
 
@@ -31,6 +32,7 @@ def async_file(
             with open(file_path, "w") as f:
                 f.write(contents)
 
-        return {"data": "success"}
+        return Response.get_response("0000")
     except Exception as e:
         print(f"${e=}")
+        return Response.get_response("7000")

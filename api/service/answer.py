@@ -19,15 +19,15 @@ def get_full_query(
         file_name for file_name in file_names if file_name != result_file_name
     ]
     if len(file_names) < 0:
-        return False, 404, "files not found"
+        return False, 404, "7000"
 
     table_query_snippet = QuerySnippet.retrieve_table_query_snippet()
     if table_query_snippet is None:
-        return False, 500, "failed to run query"
+        return False, 500, "7100"
 
     constraint_query_snippet = QuerySnippet.retrieve_constraint_query_snippet()
     if constraint_query_snippet is None:
-        return False, 500, "failed to run query"
+        return False, 500, "7100"
 
     full_query = ""
     for file_name in file_names:
