@@ -1,0 +1,8 @@
+pip install pandas==2.1.2
+pip install -q google-generativeai==0.2.2
+pip install celery==5.3.4
+
+pip install apscheduler==4.0.0a4
+pip install fastapi
+pip install "uvicorn[standard]"
+pip install sqlalchemy==2.0.23

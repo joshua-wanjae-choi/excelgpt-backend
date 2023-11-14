@@ -1,8 +1,0 @@
-pip install pandas
-pip install -q google-generativeai
-pip install celery
-
-pip install fastapi
-pip install "uvicorn[standard]"
-pip install sqlalchemy
-pip install rocketry

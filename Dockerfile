@@ -51,7 +51,16 @@ RUN chown -R excelgpt:excelgpt /home/excelgpt
 
 # Select User
 USER excelgpt
-WORKDIR /home/excelgpt/app
 
-# Command
-CMD ["tail", "-f", ".gitignore"]
+# Install dependency
+WORKDIR /home/excelgpt/app
+RUN bash dependency_commands
+
+# Run
+WORKDIR /home/excelgpt/app/api
+
+# # DEV Command
+# CMD ["tail", "-f", "main.py"]
+
+# # PRODUCT command
+CMD ["uvicorn", "main:app", "--reload", "--host=0.0.0.0", "--port=8000", "--lifespan", "on"]

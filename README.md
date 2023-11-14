@@ -6,13 +6,10 @@ excelgpt-backend
     # api로 이동
     cd ~/api
 
-    # fastAPI 개발서버 실행
-    uvicorn main:app_fastapi --reload --host=0.0.0.0 --port=8000
-    # 또는
-    uvicorn api:app --reload --host=0.0.0.0 --port=8000
-
-    # rocketry와 fastAPI 함께 실행
-    python main.py
+    # fastAPI 개발서버와 스케줄러 실행
+    uvicorn main:app --reload --host=0.0.0.0 --port=8000 --lifespan on
+    # fastAPI 개발서버만 실행
+    uvicorn main:app --reload --host=0.0.0.0 --port=8000
     ```
 
 ### 참고
