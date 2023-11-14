@@ -44,32 +44,32 @@ VALUES
 INSERT INTO QUERY_SNIPPET (COMMON_CODE, SNIPPET) 
 VALUES
 ('table-query-snippet', '
-dataframe name is %file_name%.
-file path is "%path%".
-data of %file_name% = `
+Dataframe name is %file_name%.
+File path is "%path%".
+Data of %file_name% = `
 %lines%
 `.
-first line of %file_name% is header.
-delimiter of %file_name% is "|".
-extension of %file_name% not exists.
-index_col of %file_name% is False.
+First line of %file_name% is header. 
+Delimiter of %file_name% is "|". 
+Extension of %file_name% not exists. 
+Index_col of %file_name% is False. 
+Replace NaN fields with empty strings.
         
 ');
 
 INSERT INTO QUERY_SNIPPET (COMMON_CODE, SNIPPET) 
 VALUES
 ('constraint-query-snippet', '
-result dataframe is named %result_file_name%. 
-result file path is %result_path%. 
-delimiter of %result_file_name% is "|". 
-result file of extension not exists. 
+Result dataframe is named %result_file_name%. 
+Result file path is %result_path%. 
+Delimiter of %result_file_name% is "|". 
+Result file of extension not exists. 
 
-request below. 
+Request below. 
 %query% 
 Extract only existing columns of %base_sheet_name%. 
 
-constraints below. 
-using python, pandas and do not print results. 
-Replace NaN fields with empty strings.
+Constraints below. 
+Using python, pandas and do not print results. 
 
 ');
