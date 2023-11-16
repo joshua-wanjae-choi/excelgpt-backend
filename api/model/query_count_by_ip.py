@@ -29,36 +29,40 @@ class QueryCountByIp(Base):
     )
 
     def retrieve_query_count(ip: str, today_date: str):
-        stmt = select(QueryCountByIp).where(
-            QueryCountByIp.ip == ip,
-            QueryCountByIp.created_at == today_date,
-        )
-        return DB.conn.execute(stmt).first()
-
-    def init_query_count(ip: str):
-        stmt = insert(QueryCountByIp).values(ip=ip, query_count=1)
-        DB.conn.execute(stmt)
-        DB.conn.commit()
-
-    def update_query_count(ip: str, today_date: str, query_count: int):
-        stmt = (
-            update(QueryCountByIp)
-            .where(
+        with DB.engine.connect() as conn:
+            stmt = select(QueryCountByIp).where(
                 QueryCountByIp.ip == ip,
                 QueryCountByIp.created_at == today_date,
             )
-            .values(query_count=query_count)
-        )
-        DB.conn.execute(stmt)
-        DB.conn.commit()
+            return conn.execute(stmt).first()
+
+    def init_query_count(ip: str):
+        with DB.engine.connect() as conn:
+            stmt = insert(QueryCountByIp).values(ip=ip, query_count=1)
+            conn.execute(stmt)
+            conn.commit()
+
+    def update_query_count(ip: str, today_date: str, query_count: int):
+        with DB.engine.connect() as conn:
+            stmt = (
+                update(QueryCountByIp)
+                .where(
+                    QueryCountByIp.ip == ip,
+                    QueryCountByIp.created_at == today_date,
+                )
+                .values(query_count=query_count)
+            )
+            conn.execute(stmt)
+            conn.commit()
 
     def list_expired_ip(days_expired: int):
-        stmt = (
-            select(QueryCountByIp.ip)
-            .distinct()
-            .where(
-                func.hour(func.timediff(func.now(), QueryCountByIp.updated_at))
-                > days_expired * 24
+        with DB.engine.connect() as conn:
+            stmt = (
+                select(QueryCountByIp.ip)
+                .distinct()
+                .where(
+                    func.hour(func.timediff(func.now(), QueryCountByIp.updated_at))
+                    > days_expired * 24
+                )
             )
-        )
-        return DB.conn.execute(stmt).all()
+            return conn.execute(stmt).all()

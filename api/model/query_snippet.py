@@ -22,13 +22,15 @@ class QuerySnippet(Base):
     )
 
     def retrieve_table_query_snippet():
-        stmt = select(QuerySnippet).where(
-            QuerySnippet.common_code == "table-query-snippet"
-        )
-        return DB.conn.execute(stmt).first()
+        with DB.engine.connect() as conn:
+            stmt = select(QuerySnippet).where(
+                QuerySnippet.common_code == "table-query-snippet"
+            )
+            return conn.execute(stmt).first()
 
     def retrieve_constraint_query_snippet():
-        stmt = select(QuerySnippet).where(
-            QuerySnippet.common_code == "constraint-query-snippet"
-        )
-        return DB.conn.execute(stmt).first()
+        with DB.engine.connect() as conn:
+            stmt = select(QuerySnippet).where(
+                QuerySnippet.common_code == "constraint-query-snippet"
+            )
+            return conn.execute(stmt).first()
