@@ -1,4 +1,5 @@
 from dto.response_dto import ResponseDto
+import dataclasses
 
 class Response:
     _resonse_map = {
@@ -29,7 +30,8 @@ class Response:
         if code in Response._resonse_map:
             row = Response._resonse_map[code]
             
-        if lang is None:
-            return ResponseDto(code=code, lang=default_lang, message=row[default_lang])
+        result = ResponseDto(code=code, lang=default_lang, message=row[default_lang])
+        if lang is not None:
+            result = ResponseDto(code=code, lang=lang, message=row[lang])
 
-        return ResponseDto(code=code, lang=lang, message=row[lang])
+        return dataclasses.asdict(result)
