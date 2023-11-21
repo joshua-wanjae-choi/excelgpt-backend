@@ -4,7 +4,8 @@ from secret import Secret
 
 class DB:
     engine = create_engine(
-        f"mariadb+mariadbconnector://{Secret.db_user}:{Secret.db_password}@{Secret.db_host}:{Secret.db_port}"
+        f"mariadb+mariadbconnector://{Secret.db_user}:{Secret.db_password}@{Secret.db_host}:{Secret.db_port}",
+        pool_recycle=3600
     )
 
     def init_database():
